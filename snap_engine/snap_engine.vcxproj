@@ -162,6 +162,7 @@
     <ClCompile Include="src\engine\renderer\renderer.cpp" />
     <ClCompile Include="src\engine\renderer\shader.cpp" />
     <ClCompile Include="src\engine\time\time.cpp" />
+    <ClCompile Include="src\main.cpp" />
     <ClCompile Include="vendor\GLM\glm\detail\glm.cpp" />
   </ItemGroup>
   <ItemGroup>

@@ -17,7 +17,8 @@ void Time::time_init(u32 frame_rate)
 {
 	m_frameRate = frame_rate;
 	m_targetFrameTime = 1000.f / frame_rate; // frame target time in ms
-	srand(SDL_GetTicks()); // sedding random
+
+	srand(SDL_GetTicks());
 }
 
 void Time::time_update(void)

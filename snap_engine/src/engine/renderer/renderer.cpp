@@ -2,11 +2,8 @@
 #include <GLEW/glew.h>
 #include <engine/logger/asserts.h>
 #include <engine/display/window.h>
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
 
 std::shared_ptr<shader> renderer::m_default_shaderprogram;
-std::shared_ptr<shader> renderer::m_sprite_shaderprogram;
 render_object renderer::quad;
 render_object renderer::line;
 
@@ -23,8 +20,7 @@ bool renderer::renderer_init(void)
 	LOG_DEBUG("version: {}", (const char*)glGetString(GL_VERSION));
 	
 	m_default_shaderprogram = std::make_shared<shader>("assets/shaders/default_vertex.glsl", "assets/shaders/default_fragment.glsl");
-	m_sprite_shaderprogram = std::make_shared<shader>("assets/shaders/sprite_vertex.glsl", "assets/shaders/sprite_fragment.glsl");
-
+	
 	int window_width = (int)window::getInstance()->getWidth();
 	int window_height = (int)window::getInstance()->getHeight();
 	glViewport(0, 0, window_width, window_height);
@@ -115,10 +111,10 @@ void renderer::render_quadline(glm::vec2 position, glm::vec2 scale, color color,
 {
 	glm::vec2 points[] = 
 	{
-		glm::vec2(position.x - scale.x * 0.5f, position.y - scale.x * 0.5f),
-		glm::vec2(position.x + scale.x * 0.5f, position.y - scale.x * 0.5f),
-		glm::vec2(position.x + scale.x * 0.5f, position.y + scale.x * 0.5f),
-		glm::vec2(position.x - scale.x * 0.5f, position.y + scale.x * 0.5f),
+		glm::vec2(position.x - scale.x * 0.5f, position.y - scale.y * 0.5f),
+		glm::vec2(position.x + scale.x * 0.5f, position.y - scale.y * 0.5f),
+		glm::vec2(position.x + scale.x * 0.5f, position.y + scale.y * 0.5f),
+		glm::vec2(position.x - scale.x * 0.5f, position.y + scale.y * 0.5f),
 	};
 
 	for (size_t i = 0; i < 3; i++)
@@ -135,85 +131,6 @@ void renderer::render_aabb(const AABB& _aabb, color color, f32 lineWidth)
 	render_quadline(_aabb.position, scale, color, lineWidth);
 }
 
-texture renderer::creat_texture(const char * file_path, bool flip)
-{
-	texture tex;
-	glGenTextures(1, &tex.id);
-	glBindTexture(GL_TEXTURE_2D, tex.id);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	i32 width, height, n_channel;
-
-	stbi_set_flip_vertically_on_load(flip);
-	u8* data = stbi_load(file_path, &width, &height, &n_channel, 0);
-
-	tex.width = width;
-	tex.height = height;
-
-	GLenum format = GL_RGB;
-	GLenum internal_format = GL_RGB;
-
-	if (n_channel == 4)
-	{
-		format = GL_RGBA;
-		internal_format = GL_RGBA;
-	}
-
-	if (data)
-	{
-		glTexImage2D(GL_TEXTURE_2D, 0, internal_format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else
-	{
-		LOG_ERROR("Failed to load texture at location : {}", file_path);
-	}
-
-	stbi_image_free(data);
-	
-	return tex;
-}
-
-void renderer::render_sprite(texture * tex, const glm::vec2 & position, const glm::vec2 & scale, const color & color)
-{
-	if (!tex)
-	{
-		renderer::render_quad(position, scale, color);
-		return;
-	}
-
-	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(position.x, position.y, 0.0f));
-	model = glm::scale(model, glm::vec3(scale.x, scale.y, 1.0f));
-	model = glm::rotate(model, glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-
-	glm::mat4 projection = glm::mat4(1.0f);
-	f32 window_width = (f32)window::getInstance()->getWidth();
-	f32 window_height = (f32)window::getInstance()->getHeight();
-	//projection = glm::ortho(-0.5f * window_width, 0.5f * window_width, -0.5f * window_height, 0.5f * window_height, 0.0f, 100.0f);
-	projection = glm::ortho(0.0f, window_width, 0.0f, window_height, 0.0f, 100.0f);
-
-	m_sprite_shaderprogram->bind();
-
-	m_sprite_shaderprogram->set_mat4("u_model", model);
-	m_sprite_shaderprogram->set_mat4("u_projection", projection);
-	m_sprite_shaderprogram->set_color("u_color", color);
-	m_sprite_shaderprogram->set_int("u_texture", 0);
-
-	glBindTexture(GL_TEXTURE_2D, tex->id);
-	glActiveTexture(GL_TEXTURE0);
-
-	glBindVertexArray(quad.vao);
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
-}
-
 render_object rendererFactory::init_quad()
 {
 	u32 vao;
@@ -222,10 +139,10 @@ render_object rendererFactory::init_quad()
 
 	f32 vertices[]
 	{  // x      y     z     u    v
-		 0.5f,  0.5f, 0.0f, 1.0f,1.0f,  // top right
-		 0.5f, -0.5f, 0.0f, 1.0f,0.0f,  // bottom right
-		-0.5f, -0.5f, 0.0f, 0.0f,0.0f,  // bottom left
-		-0.5f,  0.5f, 0.0f, 0.0f,1.0f  // top left 
+		 0.5f,  0.5f, 0.0f, 0.0f,0.0f,  // top right
+		 0.5f, -0.5f, 0.0f, 0.0f,1.0f,  // bottom right
+		-0.5f, -0.5f, 0.0f, 1.0f,1.0f,  // bottom left
+		-0.5f,  0.5f, 0.0f, 1.0f,0.0f  // top left 
 	};
 
 	u32 indices[]
