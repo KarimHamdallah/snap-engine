@@ -106,7 +106,7 @@ bool window::init()
 
 	m_window = SDL_CreateWindow
 	(
-		m_title.c_str(),
+		"shooter game",
 		SDL_WINDOWPOS_CENTERED,
 		SDL_WINDOWPOS_CENTERED,
 		m_width,

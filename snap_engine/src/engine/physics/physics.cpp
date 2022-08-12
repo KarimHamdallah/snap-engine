@@ -296,12 +296,10 @@ void physicsWorld::free_memory()
 {
 	for (size_t i = 0; i < m_physics_bodies.size(); i++)
 	{
-		if(m_physics_bodies[i])
-			delete m_physics_bodies[i];
+		delete m_physics_bodies[i];
 	}
 	for (size_t i = 0; i < m_static_bodies.size(); i++)
 	{
-		if (m_static_bodies[i])
-			delete m_static_bodies[i];
+		delete m_static_bodies[i];
 	}
 }

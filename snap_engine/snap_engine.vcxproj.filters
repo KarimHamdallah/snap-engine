@@ -45,6 +45,9 @@
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\engine\math\math.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\engine\display\window.h">
@@ -1518,6 +1521,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\snap_engine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\engine\math\math.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

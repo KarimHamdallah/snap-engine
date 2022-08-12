@@ -94,6 +94,7 @@ int main(int argc, char* argv[])
 		// renderering
 		renderer::renderer_begin();
 		// TODO:: REMOVE
+
 		for (size_t i = 0; i < physicsWorld::getStaticBodies_count(); i++)
 		{
 			StaticBody* b = physicsWorld::getStaticBody(i);
@@ -104,11 +105,13 @@ int main(int argc, char* argv[])
 			Body* b = physicsWorld::getBody(i);
 			renderer::render_aabb(b->aabb, WHITE);
 		}
+
+		renderer::render_smoothcircle(window_center, 100.0f, RED, 1.0f);
+
 		renderer::renderer_end(game_widnow->getRenderingWindow());
 
 		Time::time_update_late();
 	}
-
 
 	physicsWorld::free_memory();
 

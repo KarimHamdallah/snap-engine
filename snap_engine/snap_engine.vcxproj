@@ -157,6 +157,7 @@
     <ClCompile Include="src\engine\display\window.cpp" />
     <ClCompile Include="src\engine\input\input.cpp" />
     <ClCompile Include="src\engine\logger\Logger.cpp" />
+    <ClCompile Include="src\engine\math\math.cpp" />
     <ClCompile Include="src\engine\physics\physics.cpp" />
     <ClCompile Include="src\engine\renderer\instance_renderer.cpp" />
     <ClCompile Include="src\engine\renderer\renderer.cpp" />
@@ -172,6 +173,7 @@
     <ClInclude Include="src\engine\input\keys.h" />
     <ClInclude Include="src\engine\logger\asserts.h" />
     <ClInclude Include="src\engine\logger\Logger.h" />
+    <ClInclude Include="src\engine\math\math.h" />
     <ClInclude Include="src\engine\physics\physics.h" />
     <ClInclude Include="src\engine\renderer\gl_base_elemnt.h" />
     <ClInclude Include="src\engine\renderer\instance_renderer.h" />
