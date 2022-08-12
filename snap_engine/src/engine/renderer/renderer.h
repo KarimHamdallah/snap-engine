@@ -12,14 +12,6 @@ struct render_object
 	u32 ebo;
 };
 
-struct circle_vertex
-{
-	glm::vec3 v_position;
-	color v_color;
-	f32 thickness;
-	f32 fade;
-};
-
 class renderer
 {
 public:
