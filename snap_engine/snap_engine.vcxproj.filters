@@ -1951,6 +1951,8 @@
     <None Include="assets\shaders\instance_vertex.glsl" />
     <None Include="assets\shaders\sprite_fragment.glsl" />
     <None Include="assets\shaders\sprite_vertex.glsl" />
+    <None Include="assets\shaders\smoothcircle_vertex.glsl" />
+    <None Include="assets\shaders\smoothcircle_fragment.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="assets\textures\enemy_large.png">

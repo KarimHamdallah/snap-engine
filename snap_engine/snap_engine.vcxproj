@@ -665,6 +665,8 @@
     <None Include="assets\shaders\default_vertex.glsl" />
     <None Include="assets\shaders\instance_fragment.glsl" />
     <None Include="assets\shaders\instance_vertex.glsl" />
+    <None Include="assets\shaders\smoothcircle_fragment.glsl" />
+    <None Include="assets\shaders\smoothcircle_vertex.glsl" />
     <None Include="assets\shaders\sprite_fragment.glsl" />
     <None Include="assets\shaders\sprite_vertex.glsl" />
     <None Include="vendor\GLM\glm\detail\func_common.inl" />

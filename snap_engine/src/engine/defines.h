@@ -25,7 +25,7 @@ typedef struct _color
 }color;
 
 #define RGB_COLOR(r,g,b) color{r/255.0f, g/255.0f, b/255.0f, 1.0f}
-#define RGBA_COLOR(r,g,b) color{r/255.0f, g/255.0f, b/255.0f, a/255.0f}
+#define RGBA_COLOR(r,g,b,a) color{r/255.0f, g/255.0f, b/255.0f, a/255.0f}
 
 #define WHITE_FADED color{1.0f, 1.0f, 1.0f, 0.3f}
 #define WHITE color{1.0f, 1.0f, 1.0f, 1.0f}

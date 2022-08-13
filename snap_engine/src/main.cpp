@@ -1,12 +1,14 @@
 #include <iostream>
 #include <engine/display/window.h>
 #include <engine/renderer/renderer.h>
+#include <engine/defines.h>
 #include <engine/logger/Logger.h>
 #include <engine/input/input.h>
 #include <engine/time/Time.h>
 #include <engine/physics/physics.h>
 #include <engine/renderer/instance_renderer.h>
 
+f32 fade = 0.316;
 
 void on_resize(u32 new_width, u32 new_height)
 {
@@ -106,7 +108,13 @@ int main(int argc, char* argv[])
 			renderer::render_aabb(b->aabb, WHITE);
 		}
 
-		renderer::render_smoothcircle(window_center, 100.0f, RED, 1.0f);
+		if (Input::isKeyPressed(Key::Up))
+			fade += 0.01f;
+		if (Input::isKeyPressed(Key::Down))
+			fade -= 0.01f;
+
+
+		renderer::render_smoothcircle(window_center, 100, RGBA_COLOR(246,100,6,255), 0.375f);
 
 		renderer::renderer_end(game_widnow->getRenderingWindow());
 
