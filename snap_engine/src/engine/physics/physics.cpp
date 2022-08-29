@@ -51,7 +51,7 @@ u32 physicsWorld::pushBody(glm::vec2 position, glm::vec2 scale)
 {
 	Body* b = new Body;
 
-	b->aabb.position = position;
+	b->aabb.center = position;
 	b->aabb.half_scale = (scale * 0.5f);
 	b->velocity = glm::vec2(0.0f);
 	b->acceleration = glm::vec2(0.0f);
@@ -71,7 +71,7 @@ u32 physicsWorld::pushStaticBody(glm::vec2 position, glm::vec2 scale)
 {
 	StaticBody* b = new StaticBody;
 
-	b->aabb.position = position;
+	b->aabb.center = position;
 	b->aabb.half_scale = (scale * 0.5f);
 
 	m_static_bodies.push_back(b);
@@ -99,7 +99,7 @@ bool physicsWorld::aabb_vs_aabb(const AABB & A, const AABB & B)
 AABB physicsWorld::minkowski_difference(const AABB & A, const AABB & B)
 {
 	AABB result;
-	result.position = A.position - B.position;
+	result.center = A.center - B.center;
 	result.half_scale = A.half_scale + B.half_scale;
 
 	return result;
@@ -107,8 +107,8 @@ AABB physicsWorld::minkowski_difference(const AABB & A, const AABB & B)
 
 glm::vec2 physicsWorld::get_closest_point_to_origin(const AABB & result)
 {
-	glm::vec2 min = result.position - result.half_scale;
-	glm::vec2 max = result.position + result.half_scale;
+	glm::vec2 min = result.center - result.half_scale;
+	glm::vec2 max = result.center + result.half_scale;
 
 	f32 min_dist = fabsf(min.x);
 	glm::vec2 bounds_point = glm::vec2(min.x, 0.0f);
@@ -134,8 +134,8 @@ glm::vec2 physicsWorld::get_closest_point_to_origin(const AABB & result)
 
 void physicsWorld::aabb_min_max(const AABB & aabb, glm::vec2 & min, glm::vec2 & max)
 {
-	min = aabb.position - aabb.half_scale;
-	max = aabb.position + aabb.half_scale;
+	min = aabb.center - aabb.half_scale;
+	max = aabb.center + aabb.half_scale;
 }
 
 Hit physicsWorld::ray_vs_aabb(glm::vec2 origin, glm::vec2 direction, const AABB& aabb)
@@ -173,7 +173,7 @@ Hit physicsWorld::ray_vs_aabb(glm::vec2 origin, glm::vec2 direction, const AABB&
 		hit.is_hit = true;
 		hit.time = last_entry;
 
-		glm::vec2 d = hit.position - aabb.position;
+		glm::vec2 d = hit.position - aabb.center;
 		glm::vec2 p;
 		p.x = aabb.half_scale.x - glm::abs(d.x);
 		p.y = aabb.half_scale.y - glm::abs(d.y);
@@ -204,7 +204,7 @@ Hit physicsWorld::sweep_static_bodies(AABB aabb, glm::vec2 velocity)
 		AABB sum_aabb = static_body->aabb;
 		sum_aabb.half_scale += aabb.half_scale;
 
-		Hit hit = ray_vs_aabb(aabb.position, velocity, sum_aabb);
+		Hit hit = ray_vs_aabb(aabb.center, velocity, sum_aabb);
 		if (!hit.is_hit)
 		{
 			continue;
@@ -234,21 +234,21 @@ void physicsWorld::sweep_response(Body * b, glm::vec2 velocity)
 	Hit hit = sweep_static_bodies(b->aabb, velocity);
 
 	if (hit.is_hit) {
-		b->aabb.position[0] = hit.position[0];
-		b->aabb.position[1] = hit.position[1];
+		b->aabb.center[0] = hit.position[0];
+		b->aabb.center[1] = hit.position[1];
 
 		if (hit.normal[0] != 0) {
-			b->aabb.position[1] += velocity[1];
+			b->aabb.center[1] += velocity[1];
 			b->velocity[0] = 0;
 		}
 		else if (hit.normal[1] != 0) {
-			b->aabb.position[0] += velocity[0];
+			b->aabb.center[0] += velocity[0];
 			b->velocity[1] = 0;
 		}
 	}
 	else
 	{
-		b->aabb.position += velocity;
+		b->aabb.center += velocity;
 	}
 }
 
@@ -265,7 +265,7 @@ void physicsWorld::stationary_response(Body * b)
 			// get penteration vector
 			glm::vec2 penteration_vector = get_closest_point_to_origin(minkowski_difference_aabb);
 			// separate moving body away from static body
-			b->aabb.position += penteration_vector;
+			b->aabb.center += penteration_vector;
 		}
 	}
 }
@@ -282,8 +282,8 @@ u32 physicsWorld::getStaticBodies_count()
 
 bool physicsWorld::point_vs_aabb(glm::vec2 point, const AABB& aabb)
 {
-	glm::vec2 min = aabb.position - aabb.half_scale;
-	glm::vec2 max = aabb.position + aabb.half_scale;
+	glm::vec2 min = aabb.center - aabb.half_scale;
+	glm::vec2 max = aabb.center + aabb.half_scale;
 
 
 	return point.x >= min.x &&

@@ -5,5 +5,6 @@
 #include <engine/logger/Logger.h>
 #include <engine/input/input.h>
 #include <engine/time/Time.h>
+#include <engine/math/math.h>
 #include <engine/physics/physics.h>
 #include <engine/renderer/instance_renderer.h>

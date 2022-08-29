@@ -9,5 +9,5 @@ uniform vec4 u_color;
   
 void main()
 {
-    FragColor = /*texture(u_texture, Texcoord) * */u_color;
+   FragColor = /*texture(u_texture, Texcoord) * */u_color;
 }

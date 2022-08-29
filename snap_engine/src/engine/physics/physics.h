@@ -1,14 +1,7 @@
 #pragma once
-#include <engine/defines.h>
-#include <glm/glm.hpp>
+#include <engine/physics/collisions.h>
 #include <vector>
 #include <memory>
-
-typedef struct aabb
-{
-	glm::vec2 position;
-	glm::vec2 half_scale;
-}AABB;
 
 typedef struct body
 {

@@ -3,7 +3,6 @@
 #include <engine/logger/asserts.h>
 #include "keys.h"
 
-static void *m_window = nullptr;
 static bool m_init = false;
 static bool key_repeat = false;
 
