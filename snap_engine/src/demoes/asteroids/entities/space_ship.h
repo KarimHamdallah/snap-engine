@@ -2,6 +2,7 @@
 #include <vector>
 #include <engine/math/math.h>
 #include <engine/renderer/renderer.h>
+#include "../systems/particle_system.h"
 
 class polygonline
 {
@@ -110,4 +111,5 @@ private:
 	glm::vec2 acceleration;
 	f32 move_force;
 	f32 drag;
+	particle_system smoke;
 };

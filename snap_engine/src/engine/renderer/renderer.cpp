@@ -8,6 +8,7 @@
 std::shared_ptr<shader> renderer::m_default_shaderprogram;
 std::shared_ptr<shader> renderer::m_smoothcircle_shaderprogram;
 std::shared_ptr<shader> renderer::m_smoothline_shaderprogram;
+std::shared_ptr<shader> renderer::m_text_shaderprogram;
 render_object renderer::quad;
 render_object renderer::quad_bottomleft;
 render_object renderer::quad_topleft;
@@ -16,6 +17,7 @@ render_object renderer::quad_top;
 render_object renderer::line;
 render_object renderer::smoothcircle;
 render_object renderer::smoothline;
+render_object renderer::textChar;
 
 bool renderer::renderer_init(void)
 {
@@ -33,6 +35,7 @@ bool renderer::renderer_init(void)
 	m_default_shaderprogram = std::make_shared<shader>("assets/shaders/default_vertex.glsl", "assets/shaders/default_fragment.glsl");
 	m_smoothcircle_shaderprogram = std::make_shared<shader>("assets/shaders/smoothcircle_vertex.glsl", "assets/shaders/smoothcircle_fragment.glsl");
 	m_smoothline_shaderprogram = std::make_shared<shader>("assets/shaders/smoothline_vertex.glsl", "assets/shaders/smoothline_fragment.glsl");
+	m_text_shaderprogram = std::make_shared<shader>("assets/shaders/text_vertex.glsl", "assets/shaders/text_fragment.glsl");
 
 	// set view port
 	int window_width = (i32)window::getInstance()->getWidth();
@@ -52,6 +55,9 @@ bool renderer::renderer_init(void)
 	m_smoothline_shaderprogram->bind();
 	m_smoothline_shaderprogram->set_mat4("u_projection", projection);
 
+	m_text_shaderprogram->bind();
+	m_text_shaderprogram->set_mat4("u_projection", projection);
+
 	// setup render_objects
 	quad = rendererFactory::init_quad();
 	quad_bottomleft = rendererFactory::init_quad(pivot::bottom_left);
@@ -61,6 +67,7 @@ bool renderer::renderer_init(void)
 	line = rendererFactory::init_line();
 	smoothcircle = rendererFactory::init_smoothcircle();
 	smoothline = rendererFactory::init_smoothline();
+	textChar = rendererFactory::init_textChar();
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -303,6 +310,57 @@ void renderer::render_polygonline(glm::vec2 * vertices, u32 vertices_count, colo
 	}
 }
 
+void renderer::render_text(font * font, const std::string & text, const glm::vec2 & position, const glm::vec2 & scale, const color & color)
+{
+	f32 x = position.x;
+	f32 y = position.y;
+
+	m_text_shaderprogram->bind();
+	m_text_shaderprogram->set_color("u_color", color);
+	m_text_shaderprogram->set_int("u_texture", 0);
+
+	// iterate through all characters
+	std::string::const_iterator c;
+	for (c = text.begin(); c != text.end(); c++)
+	{
+		Glyph ch = font->characters[*c];
+
+		float xpos = x + ch.bearing.x * scale.x;
+		float ypos = y - (ch.size.y - ch.bearing.y) * scale.y;
+
+		float w = ch.size.x * scale.x;
+		float h = ch.size.y * scale.y;
+
+		// update VBO for each character
+		float vertices[6][4] = {
+			{ xpos,     ypos + h,   0.0f, 0.0f },
+			{ xpos,     ypos,       0.0f, 1.0f },
+			{ xpos + w, ypos,       1.0f, 1.0f },
+
+			{ xpos,     ypos + h,   0.0f, 0.0f },
+			{ xpos + w, ypos,       1.0f, 1.0f },
+			{ xpos + w, ypos + h,   1.0f, 0.0f }
+		};
+		// render glyph texture over quad
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, ch.texId);
+
+		// update content of VBO memory
+		glBindVertexArray(textChar.vao);
+		glBindBuffer(GL_ARRAY_BUFFER, textChar.vbo);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		
+		// render quad
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		// now advance cursors for next glyph (note that advance is number of 1/64 pixels)
+		x += (ch.advance >> 6) * scale.x; // bitshift by 6 to get value in pixels (2^6 = 64)
+	}
+	glBindVertexArray(0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
 void renderer::free_memory()
 {
 	glDeleteVertexArrays(1, &quad.vao);
@@ -312,7 +370,8 @@ void renderer::free_memory()
 	glDeleteVertexArrays(1, &quad_topleft.vao);
 	glDeleteVertexArrays(1, &smoothcircle.vao);
 	glDeleteVertexArrays(1, &line.vao);
-	glDeleteBuffers(1, &smoothline.vao);
+	glDeleteVertexArrays(1, &smoothline.vao);
+	glDeleteVertexArrays(1, &textChar.vao);
 
 	glDeleteBuffers(1, &quad.vbo);
 	glDeleteBuffers(1, &quad_bottom.vbo);
@@ -322,6 +381,7 @@ void renderer::free_memory()
 	glDeleteBuffers(1, &smoothcircle.vbo);
 	glDeleteBuffers(1, &line.vbo);
 	glDeleteBuffers(1, &smoothline.vbo);
+	glDeleteBuffers(1, &textChar.vbo);
 
 	glDeleteBuffers(1, &quad.ebo);
 	glDeleteBuffers(1, &quad_bottom.ebo);
@@ -331,6 +391,7 @@ void renderer::free_memory()
 	glDeleteBuffers(1, &smoothcircle.ebo);
 	glDeleteBuffers(1, &line.ebo);
 	glDeleteBuffers(1, &smoothline.ebo);
+	glDeleteBuffers(1, &textChar.ebo);
 }
 
 render_object rendererFactory::init_quad(pivot pivot_point)
@@ -540,4 +601,29 @@ render_object rendererFactory::init_smoothline()
 	glEnableVertexAttribArray(1);
 
 	return render_object{ vao,vbo,ebo };
+}
+
+render_object rendererFactory::init_textChar()
+{
+	render_object result;
+
+	glGenVertexArrays(1, &result.vao);
+	glGenBuffers(1, &result.vbo);
+	glBindVertexArray(result.vao);
+	glBindBuffer(GL_ARRAY_BUFFER, result.vbo);
+
+
+	// 6 >> vertices / 4 >> floats per vertex
+	glBufferData(GL_ARRAY_BUFFER, sizeof(f32) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+	
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(f32), 0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(f32), (void*)(2 * sizeof(f32)));
+	
+	
+	//glBindBuffer(GL_ARRAY_BUFFER, 0);
+	//glBindVertexArray(0);
+
+	return result;
 }

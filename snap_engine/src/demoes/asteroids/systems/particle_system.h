@@ -3,6 +3,13 @@
 #include <engine/defines.h>
 
 
+enum class particleType
+{
+	Quad = 0,
+	Circle = 1,
+	AABB = 2
+};
+
 struct particel_properties
 {
 	glm::vec2 position;
@@ -10,6 +17,7 @@ struct particel_properties
 	glm::vec2 startScale, endScale, scaleVariation;
 	color startColor, endColor;
 	f32 lifeTime = 1.0f;
+	particleType type = particleType::AABB;
 };
 
 class particle_system
@@ -32,6 +40,8 @@ private:
 
 		f32 LifeTime = 1.0f;
 		f32 LifeRemaining = 0.0f;
+
+		particleType ParticleType;
 
 		bool Active = false;
 	};

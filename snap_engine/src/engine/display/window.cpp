@@ -111,7 +111,7 @@ bool window::init()
 		SDL_WINDOWPOS_CENTERED,
 		m_width,
 		m_height,
-		SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE
+		SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN
 	);
 
 	if (m_window == NULL)

@@ -11,7 +11,7 @@
 glm::vec2 dir = glm::vec2(0.0f);
 #define MOVE_FORCE 200.0f
 #define BULLET_SPEED 5.0f
-#define LIVES 4
+#define LIVES 20
 #define SHIELDTIME 5
 #define RESPAWNTIME 5
 f32 fade = 1.0f;
@@ -44,7 +44,7 @@ space_ship::space_ship(const glm::vec2 & pos, f32 scale, f32 rotation)
 	f32 x_offset = 10.0f;
 	f32 y_offset = 20.0f;
 
-	for (size_t i = 0; i < 4; i++)
+	for (size_t i = 0; i < LIVES; i++)
 	{
 		lives.push_back(
 		std::make_shared<polygonline>(local_vertices, glm::vec2(x_offset, height - y_offset), 10.0f, 0.0f)
@@ -82,7 +82,23 @@ void space_ship::update(f32 rotation_speed)
 
 		// thrust
 		if (Input::isKeyPressed(Key::Up))
+		{
 			move_force = MOVE_FORCE;
+            
+			particel_properties props;
+			props.startColor = /*RGB_COLOR(161, 160, 257)*/color{0.0f, 0.0f, 0.8f, 1.0f};
+			props.endColor = color{0.5f, 0.5f, 0.5f, 1.0f};
+			props.startScale = glm::vec2(3.0f);
+			props.endScale = glm::vec2(8.0f);
+			props.lifeTime = 0.5f;
+			props.position = polygon->getpos() - dir * 15.0f;
+			props.scaleVariation = glm::vec2(0.0f);
+			props.velocity = glm::vec2(0.0f, dir.y * -50.0f);
+			props.velocityVariation = glm::vec2(50.0f);
+			props.type = particleType::Circle;
+
+			smoke.push(props, 1);
+		}
 		else
 			move_force = 0.0f;
 
@@ -155,6 +171,8 @@ void space_ship::update(f32 rotation_speed)
 
 void space_ship::render(const color& ship_color, const color& bullet_color)
 {
+	smoke.update();
+
 	if (shield_on)
 		polygon->render(GREEN, 1.0f);
 	else
@@ -172,6 +190,8 @@ void space_ship::render(const color& ship_color, const color& bullet_color)
 
 	for (size_t i = 0; i < lives.size(); i++)
 		lives[i]->render(GREEN, 0.5f);
+	
+	smoke.render();
 }
 
 void space_ship::Kill()

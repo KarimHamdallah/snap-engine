@@ -40,8 +40,12 @@ void particle_system::render()
 		glm::vec2 size = math::lerp(particle.SizeEnd, particle.SizeBegin, life);
 
 		// Render
-		//renderer::render_quad(particle.Position, size, particle.Rotation, color);
-		renderer::render_aabb({ particle.Position, size * 0.5f }, color);
+		if(particle.ParticleType == particleType::AABB)
+			renderer::render_aabb({ particle.Position, size * 0.5f }, color);
+		if (particle.ParticleType == particleType::Quad)
+			renderer::render_quad(particle.Position, size, particle.Rotation, color);
+		if (particle.ParticleType == particleType::Circle)
+			renderer::render_smoothcircle(particle.Position, size, color);
 	}
 }
 
@@ -67,6 +71,7 @@ void particle_system::push(const particel_properties & particleProps, u32 partic
 		particle.LifeRemaining = particleProps.lifeTime;
 		particle.SizeBegin = particleProps.startScale + particleProps.scaleVariation * random(-0.5f, 0.5f);
 		particle.SizeEnd = particleProps.endScale;
+		particle.ParticleType = particleProps.type;
 
 		m_PoolIndex = --m_PoolIndex % m_ParticlePool.size();
 	}

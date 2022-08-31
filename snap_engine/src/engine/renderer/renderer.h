@@ -4,6 +4,7 @@
 #include <engine/defines.h>
 #include "shader.h"
 #include <engine/physics/physics.h>
+#include "font.h"
 
 enum class pivot
 {
@@ -41,11 +42,14 @@ public:
 	static void render_polygonline(const std::vector<glm::vec2>& vertices, color color, f32 lineWidth = 1.0f);
 	static void render_polygonline(glm::vec2* vertices, u32 vertices_count, color color, f32 lineWidth = 1.0f);
 
+	static void render_text(font* font, const std::string& text, const glm::vec2& position, const glm::vec2& scale, const color& color);
+
 	static void free_memory();
 private:
 	static std::shared_ptr<shader> m_default_shaderprogram;
 	static std::shared_ptr<shader> m_smoothcircle_shaderprogram;
 	static std::shared_ptr<shader> m_smoothline_shaderprogram;
+	static std::shared_ptr<shader> m_text_shaderprogram;
 	static render_object quad;
 	static render_object quad_bottomleft;
 	static render_object quad_topleft;
@@ -54,6 +58,7 @@ private:
 	static render_object line;
 	static render_object smoothcircle;
 	static render_object smoothline;
+	static render_object textChar;
 };
 
 class rendererFactory
@@ -63,5 +68,6 @@ public:
 	static render_object init_line();
 	static render_object init_smoothcircle(); // return quad to draw circle inside it with shaders
 	static render_object init_smoothline(); // return quad to draw line inside it with shaders
+	static render_object init_textChar(); // return quad to draw charcater texture inside it with shaders
 private:
 };

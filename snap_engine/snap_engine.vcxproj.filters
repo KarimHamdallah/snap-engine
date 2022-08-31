@@ -66,6 +66,12 @@
     <ClCompile Include="src\demoes\asteroids\systems\particle_system.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\demoes\asteroids\entities\alien.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\renderer\font.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\engine\display\window.h">
@@ -146,6 +152,12 @@
     <ClInclude Include="src\demoes\asteroids\systems\particle_system.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\demoes\asteroids\entities\alien.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\engine\renderer\font.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\shaders\default_fragment.glsl" />
@@ -158,6 +170,8 @@
     <None Include="assets\shaders\smoothcircle_fragment.glsl" />
     <None Include="assets\shaders\smoothline_vertex.glsl" />
     <None Include="assets\shaders\smoothline_fragment.glsl" />
+    <None Include="assets\shaders\text_vertex.glsl" />
+    <None Include="assets\shaders\text_fragment.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="assets\textures\enemy_large.png">
