@@ -16,16 +16,10 @@ struct Glyph
 	u32 advance;
 };
 
-struct font
+class font
 {
 	font() = default;
-	~font() {}
+	font(const char* file_path, u8 font_size);
+	~font();
 	std::map<char, Glyph> characters;
-};
-
-
-class fonts
-{
-public:
-	static font load_font(const char* file_path, u8 font_size);
 };

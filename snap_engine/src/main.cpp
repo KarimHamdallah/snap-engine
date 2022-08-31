@@ -69,8 +69,8 @@ int main(int argc, char* argv[])
 
 		RayCastHit hit = collisions::line_vs_AABB(start, end, center_aabb);
 
-		renderer::render_aabb(center_aabb, WHITE);
-		renderer::render_line(start, end, hit.hit ? BLUE : WHITE);
+		renderer::render_aabb(center_aabb, WHITE, 5);
+		renderer::render_wideline(start, end, hit.hit ? BLUE : WHITE);
 		renderer::render_quad(hit.exit_point, glm::vec2(10.0f), RED);
 		renderer::render_quad(hit.enter_point, glm::vec2(10.0f), GREEN);
 

@@ -5,24 +5,16 @@
 #include <string>
 #include <GLEW/glew.h>
 
-
-font fonts::load_font(const char * file_path, u8 font_size)
+font::font(const char * file_path, u8 font_size)
 {
-	font result;
 
 	static FT_Library ft;
 	if (FT_Init_FreeType(&ft))
-	{
 		LOG_ERROR("failed to initialize free type library >> can't load file at path " + std::string(file_path));
-		return result;
-	}
 
 	FT_Face face;
 	if (FT_New_Face(ft, file_path, 0, &face))
-	{
 		LOG_ERROR("can't load font at " + std::string(file_path));
-		return result;
-	}
 
 	FT_Set_Pixel_Sizes(face, 0, font_size);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -63,11 +55,13 @@ font fonts::load_font(const char * file_path, u8 font_size)
 				   face->glyph->advance.x
 		};
 
-		result.characters.insert(std::pair<char, Glyph>(c, character));
+		characters.insert(std::pair<char, Glyph>(c, character));
 	}
 
 	FT_Done_Face(face);
 	FT_Done_FreeType(ft);
+}
 
-	return result;
+font::~font()
+{
 }

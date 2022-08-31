@@ -169,26 +169,20 @@ void renderer::render_line(const glm::vec2& start, const glm::vec2& end, const c
 
 void renderer::render_wideline(const glm::vec2 & start, const glm::vec2 & end, const color & color, f32 lineWidth)
 {
+	
 	if (start.x == end.x && start.y == end.y)
 		renderer::render_quad(start, glm::vec2(lineWidth), color); // point
 	else if (start.y == end.y)
 		renderer::render_quad(start, glm::vec2(end.x - start.x, lineWidth), color, pivot::bottom_left); // horizontal line
 	else if (start.x == end.x)
-		renderer::render_quad(start, glm::vec2(lineWidth, end.y - start.y), color, pivot::bottom_left); // vertical line
+	{
+		if (start.y < end.y)
+			renderer::render_quad(start, glm::vec2(lineWidth, fabs(end.y - start.y)), color, pivot::bottom_left); // vertical line
+		else
+			renderer::render_quad(end, glm::vec2(lineWidth, fabs(end.y - start.y)), color, pivot::bottom_left); // vertical line
+	}
 	else
 	{
-	
-		/*
-		glm::vec2 min, max, scale, position;
-		min.x = std::min(start.x, end.x);
-		min.y = std::min(start.y, end.y);
-		max.x = std::max(start.x, end.x);
-		max.y = std::max(start.y, end.y);
-		scale.x = max.x - min.x;
-		scale.y = max.y - min.y;
-		position.x = min.x + scale.x * 0.5f;
-		position.y = min.y + scale.y * 0.5f;
-		*/
 
 		glm::vec2 resolution = glm::vec2(window::getInstance()->getWidth(),
 			window::getInstance()->getHeight());
@@ -308,57 +302,6 @@ void renderer::render_polygonline(glm::vec2 * vertices, u32 vertices_count, colo
 		glm::vec2 vb = vertices[(i + 1) % vertices_count];
 		render_wideline(va, vb, color, lineWidth);
 	}
-}
-
-void renderer::render_text(font * font, const std::string & text, const glm::vec2 & position, const glm::vec2 & scale, const color & color)
-{
-	f32 x = position.x;
-	f32 y = position.y;
-
-	m_text_shaderprogram->bind();
-	m_text_shaderprogram->set_color("u_color", color);
-	m_text_shaderprogram->set_int("u_texture", 0);
-
-	// iterate through all characters
-	std::string::const_iterator c;
-	for (c = text.begin(); c != text.end(); c++)
-	{
-		Glyph ch = font->characters[*c];
-
-		float xpos = x + ch.bearing.x * scale.x;
-		float ypos = y - (ch.size.y - ch.bearing.y) * scale.y;
-
-		float w = ch.size.x * scale.x;
-		float h = ch.size.y * scale.y;
-
-		// update VBO for each character
-		float vertices[6][4] = {
-			{ xpos,     ypos + h,   0.0f, 0.0f },
-			{ xpos,     ypos,       0.0f, 1.0f },
-			{ xpos + w, ypos,       1.0f, 1.0f },
-
-			{ xpos,     ypos + h,   0.0f, 0.0f },
-			{ xpos + w, ypos,       1.0f, 1.0f },
-			{ xpos + w, ypos + h,   1.0f, 0.0f }
-		};
-		// render glyph texture over quad
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, ch.texId);
-
-		// update content of VBO memory
-		glBindVertexArray(textChar.vao);
-		glBindBuffer(GL_ARRAY_BUFFER, textChar.vbo);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		
-		// render quad
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-
-		// now advance cursors for next glyph (note that advance is number of 1/64 pixels)
-		x += (ch.advance >> 6) * scale.x; // bitshift by 6 to get value in pixels (2^6 = 64)
-	}
-	glBindVertexArray(0);
-	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void renderer::free_memory()
@@ -622,8 +565,8 @@ render_object rendererFactory::init_textChar()
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(f32), (void*)(2 * sizeof(f32)));
 	
 	
-	//glBindBuffer(GL_ARRAY_BUFFER, 0);
-	//glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
 
 	return result;
 }
